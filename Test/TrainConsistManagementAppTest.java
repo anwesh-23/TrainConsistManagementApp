@@ -1,92 +1,80 @@
 import org.junit.jupiter.api.Test;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistManagementAppTest {
 
-    static class Bogie {
-        String name;
-        int capacity;
-
-        Bogie(String name, int capacity) {
-            this.name = name;
-            this.capacity = capacity;
+    static class CargoSafetyException extends RuntimeException {
+        public CargoSafetyException(String message) {
+            super(message);
         }
     }
 
-    private List<Bogie> getSampleBogies() {
-        return Arrays.asList(
-                new Bogie("Sleeper", 72),
-                new Bogie("AC Chair", 56),
-                new Bogie("First Class", 24),
-                new Bogie("General", 90)
-        );
-    }
+    static class GoodsBogie {
+        String shape;
+        String cargo;
 
-    @Test
-    void testLoopFilteringLogic() {
-        List<Bogie> result = new ArrayList<>();
-        for (Bogie b : getSampleBogies()) {
-            if (b.capacity > 60) {
-                result.add(b);
+        GoodsBogie(String shape) {
+            this.shape = shape;
+        }
+
+        void assignCargo(String cargo) {
+            if (shape.equals("Rectangular") && cargo.equals("Petroleum")) {
+                throw new CargoSafetyException("Unsafe cargo assignment!");
             }
+            this.cargo = cargo;
         }
-
-        assertEquals(2, result.size());
     }
 
     @Test
-    void testStreamFilteringLogic() {
-        List<Bogie> result = getSampleBogies().stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
+    void testCargo_SafeAssignment() {
+        GoodsBogie b = new GoodsBogie("Cylindrical");
+        b.assignCargo("Petroleum");
 
-        assertEquals(2, result.size());
+        assertEquals("Petroleum", b.cargo);
     }
 
     @Test
-    void testLoopAndStreamResultsMatch() {
-        List<Bogie> loopResult = new ArrayList<>();
-        for (Bogie b : getSampleBogies()) {
-            if (b.capacity > 60) {
-                loopResult.add(b);
-            }
+    void testCargo_UnsafeAssignmentHandled() {
+        GoodsBogie b = new GoodsBogie("Rectangular");
+
+        assertThrows(CargoSafetyException.class, () -> {
+            b.assignCargo("Petroleum");
+        });
+    }
+
+    @Test
+    void testCargo_CargoNotAssignedAfterFailure() {
+        GoodsBogie b = new GoodsBogie("Rectangular");
+
+        try {
+            b.assignCargo("Petroleum");
+        } catch (Exception ignored) {}
+
+        assertNull(b.cargo);
+    }
+
+    @Test
+    void testCargo_ProgramContinuesAfterException() {
+        GoodsBogie b1 = new GoodsBogie("Rectangular");
+        GoodsBogie b2 = new GoodsBogie("Cylindrical");
+
+        try {
+            b1.assignCargo("Petroleum");
+        } catch (Exception ignored) {}
+
+        b2.assignCargo("Petroleum");
+
+        assertEquals("Petroleum", b2.cargo);
+    }
+
+    @Test
+    void testCargo_FinallyBlockExecution() {
+        GoodsBogie b = new GoodsBogie("Rectangular");
+
+        try {
+            b.assignCargo("Petroleum");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Unsafe"));
         }
-
-        List<Bogie> streamResult = getSampleBogies().stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
-
-        assertEquals(loopResult.size(), streamResult.size());
-    }
-
-    @Test
-    void testExecutionTimeMeasurement() {
-        long start = System.nanoTime();
-
-        getSampleBogies().stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
-
-        long end = System.nanoTime();
-
-        assertTrue((end - start) > 0);
-    }
-
-    @Test
-    void testLargeDatasetProcessing() {
-        List<Bogie> large = new ArrayList<>();
-
-        for (int i = 0; i < 10000; i++) {
-            large.add(new Bogie("B" + i, i % 100));
-        }
-
-        List<Bogie> result = large.stream()
-                .filter(b -> b.capacity > 60)
-                .collect(Collectors.toList());
-
-        assertFalse(result.isEmpty());
     }
 }
