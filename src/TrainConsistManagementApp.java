@@ -1,11 +1,11 @@
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * =========================================================
- * MAIN CLASS – UseCase16TrainConsistMgmt
+ * MAIN CLASS – UseCase17TrainConsistMgmt
  * =========================================================
  *
- * Use Case 16: Sort Passenger Bogies by Capacity (Bubble Sort)
+ * Use Case 17: Sort Bogie Names Using Arrays.sort()
  */
 
 public class TrainConsistManagementApp {
@@ -13,32 +13,19 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
 
         System.out.println("======================================");
-        System.out.println("   UC16 - Manual Sorting using Bubble Sort ");
+        System.out.println("   UC17 - Sort Bogie Names Using Arrays.sort()");
         System.out.println("======================================\n");
 
-        int[] capacities = {72, 56, 24, 70, 60};
+        String[] bogieNames = {"Sleeper", "AC Chair", "First Class", "General", "Luxury"};
 
-        System.out.println("Original Capacities:");
-        for (int c : capacities) {
-            System.out.print(c + " ");
-        }
+        System.out.println("Original Bogie Names:");
+        System.out.println(Arrays.toString(bogieNames));
 
-        // Bubble Sort Logic
-        for (int i = 0; i < capacities.length - 1; i++) {
-            for (int j = 0; j < capacities.length - i - 1; j++) {
-                if (capacities[j] > capacities[j + 1]) {
-                    int temp = capacities[j];
-                    capacities[j] = capacities[j + 1];
-                    capacities[j + 1] = temp;
-                }
-            }
-        }
+        Arrays.sort(bogieNames);
 
-        System.out.println("\n\nSorted Capacities (Ascending):");
-        for (int c : capacities) {
-            System.out.print(c + " ");
-        }
+        System.out.println("\nSorted Bogie Names (Alphabetical):");
+        System.out.println(Arrays.toString(bogieNames));
 
-        System.out.println("\n\nUC16 sorting completed...");
+        System.out.println("\nUC17 sorting completed...");
     }
 }
